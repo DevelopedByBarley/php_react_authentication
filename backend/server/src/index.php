@@ -24,7 +24,8 @@ require "../../db/connection.php";
 
 $routes = [
   "GET" => [
-    "$url" => "homeHandler"
+    "$url" => "homeHandler",
+    "$url/country-single" => "singleCountryHandler"
   ],
   "POST" => [
     "$url/register" => "registrationHandler",
@@ -164,6 +165,32 @@ function decodeToken()
     $userId = $decodedToken->sub;
     return $userId;
   }
+}
+
+
+function singleCountryHandler()
+{
+  $userId = decodeToken();
+  $countryId = $_GET["countryId"];
+
+  if (!$userId || $userId === "") {
+    echo "Something went wrong!";
+    return;
+  }
+
+  $pdo = createConnection();
+  $statement = $pdo->prepare("SELECT * FROM `countries` WHERE id = ?");
+  $statement->execute([$countryId]);
+  $countries = $statement->fetch(PDO::FETCH_ASSOC);
+
+  $statement = $pdo->prepare("SELECT * FROM `cities` WHERE countryId = ?");
+  $statement->execute([$countryId]);
+  $cities = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+  echo json_encode([
+    "country" => $countries,
+    "cities" => $cities
+  ]);
 }
 
 

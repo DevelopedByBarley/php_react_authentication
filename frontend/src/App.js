@@ -1,21 +1,17 @@
-import logo from './logo.svg';
 import './App.css';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { Route, Routes } from 'react-router-dom';
+import { CountryList } from './pages/CountryList';
+import { CountrySingle } from './pages/CountrySingle';
+import { LoginTest } from './components/LoginTest';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
 
   const [countries, setCountries] = useState([]);
 
-  const user = {
-    email: "test@test.com",
-    password: "password123"
-  }
 
-  const loginHandler = () => {
-    axios.post("http://localhost:9090/backend/server/src/index.php/login", user)
-      .then(res => localStorage.setItem('userToken', res.data))
-  }
 
   useEffect(() => {
     const userToken = localStorage.getItem('userToken');
@@ -28,14 +24,13 @@ function App() {
   }, [])
 
   return (
-    <div className='countries'>
-      {countries.map((country) => {
-        return (
-          <h1 key={country.id}>{country.name}</h1>
-        )
-      })}
-      <button onClick={loginHandler}>Login</button>
-    </div>
+    <>
+      <LoginTest />
+      <Routes>
+        <Route path='/' element={<CountryList />} />
+        <Route path='/country-single/:countryId' element={<CountrySingle />} />
+      </Routes>
+    </>
   )
 }
 
