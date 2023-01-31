@@ -1,43 +1,42 @@
 import logo from './logo.svg';
 import './App.css';
-import {useEffect} from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 
 function App() {
 
+  const [countries, setCountries] = useState([]);
+
+  const user = {
+    email: "test@test.com",
+    password: "password123"
+  }
+
+  const loginHandler = () => {
+    axios.post("http://localhost:9090/backend/server/src/index.php/login", user)
+      .then(res => localStorage.setItem('userToken', res.data))
+  }
 
   useEffect(() => {
-    const newUser = {
-      "email": "aasdemail@email.com",
-      "password": "1234Csa"
-    }
-
-    axios.post("http://localhost:9090/backend/server/src/index.php/register", newUser)
-      .then(res => console.log(res.data))
-      .catch((error) => {
-        console.log(error , "User registration problem!")
+    const userToken = localStorage.getItem('userToken');
+    if (userToken) {
+      axios.get('http://localhost:9090/backend/server/src/index.php', {
+        headers: { Authorization: `Bearer ${userToken}` }
       })
+        .then(res => setCountries(res.data))
+    }
   }, [])
-  
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className='countries'>
+      {countries.map((country) => {
+        return (
+          <h1 key={country.id}>{country.name}</h1>
+        )
+      })}
+      <button onClick={loginHandler}>Login</button>
     </div>
-  );
+  )
 }
 
 export default App;
